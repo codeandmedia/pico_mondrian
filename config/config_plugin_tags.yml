@@ -1,0 +1,25 @@
+PicoTags.enabled: true
+ptags:
+  # Do you want to sort tags (case unsensitive) ?
+  # true or false
+  asort: true
+  # Do you want to remove from the tags list
+  # the ones that are used in only one page ?
+  # true or false
+  delunique: false
+  # Specify the Twig template to use for the tag pages
+  # The file has to be inside the theme in use folder
+  # You have to indicate the `.twig` extension
+  # See the template section into the README.md. 
+  template: index.twig
+  # This is a way to split the tag_list array in multiple arrays.
+  # See the template section into the README.md for more info 
+  # on how to access them.
+  nbcol: 2
+  # Excluding pages from the tags list based on their template.
+  # It has to be a string, with the `pipe (|)` as separator.
+  # You have to escape single quotes with a backslash.
+  # /!\ Be careful :
+  # in some cases you can obtain 404 error
+  # when there is no articles to display in a tag page.
+  excluded_templates: ""

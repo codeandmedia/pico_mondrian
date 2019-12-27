@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=4"> 
+  <link href="{{ base_url }}/assets/main.css" type="text/css" rel="stylesheet" media="screen" />
+  <title>{{ site_title }}</title>
+  <meta name="robots" content="noindex,nofollow">
+</head>
+<body>
+
+  <header>
+    <h1><a href="{{ base_url }}">{{ site_title }}	</a></h1>	
+  </header>
+
+
+  <main>
+    <h2> 404  {{ content }}</h2>
+  </main>
+
+
+   <footer>
+    <div itemscope itemtype="https://schema.org/WebSite">
+        <link itemprop="url" content="{{ base_url }}">
+        <form id="search" role="search"  itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction" action="{{ "search"|link }}">
+            <meta itemprop="target" content="{{ base_url }}/?q={q}">
+            <input type="search" itemprop="query-input" id="search_input" name="q" value="{{ search_terms|e('html_attr') }}" />
+            <input type="submit" value="Search" />
+        </form>
+    </div>
+
+    &#64;&nbsp;<a href="mailto:{{ config.your_mail}}">{{ config.your_mail}}</a>
+    <p>{{ site_title }} © </p>
+    </footer> 
+</body>
+</html>

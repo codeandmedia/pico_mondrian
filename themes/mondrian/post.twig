@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=4"> 
+    <link href="{{ theme_url }}/main.css" type="text/css" rel="stylesheet" media="screen" />
+    <title>{% if meta.title %}{{ meta.title|escape }} | {% endif %}{{ site_title }}</title>
+    {% if meta.description %}<meta name="description" content="{{ meta.description }}">{% endif %}
+    {% if meta["Tags"] %}<meta name="keywords" content="{{ meta["Tags"] | join(',') }}">{% endif %}
+
+</head>
+
+<body itemscope itemtype="https://schema.org/Blog">
+
+    <header>
+        <h1><a href="{{ base_url }}">{{ site_title }}</a></h1>	
+        <div>
+            <h2>{{ meta.title }}.</h2>&nbsp;<em>{{ meta.description }}</em>
+            <ul>
+                <li>{{ current_page.date_formatted }} </li>
+            {% if meta["Tags"][0] != "" %}
+                {% for tag in meta["Tags"] %}<li><a class="tags" href="{{ base_url }}/tag/{{ tag|e('url') }}">#{{ tag|e }},</a></li>{% endfor %}
+            {% endif %}
+            </ul>
+        </div>
+    </header>
+
+    <main itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting" id="page">
+
+        {% if meta.image %}<img src="{{ base_url }}/assets/{{ meta.image }}" alt="" />{% endif %}
+
+        {{ mcb_toc_top }}
+        {{ mcb_toc }}
+
+        <article itemprop="articleBody" id="post">
+            <meta itemprop="datePublished" content=" {{ current_page.date|date("Y-m-d", "Europe/London") }} " /> 
+            <meta itemprop="dateModified" content="{{ current_page.date|date("Y-m-d", "Europe/London") }}" />
+            <meta itemprop="mainEntityOfPage" content=" {{ current_page.url }} " />
+            <meta itemprop="headline" content=" {{ meta.title }} " />
+            <meta itemprop="description" content="{{ meta.description }}" />
+
+            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                <meta itemprop="name" content="{{ config.your_name }}" />
+            </span>    
+
+            <span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+                <meta itemprop="name" content="{{ site_title }}">
+            <span itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                <meta itemprop="url contentUrl" content="{{ config.your_logo }}">
+            </span>
+            </span>
+
+        {% if meta.image %}
+            <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop="url contentUrl" content="{{ base_url }}/assets/{{ meta.image }}">
+            </span>
+        {% else %}
+            <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject">
+                <meta itemprop="url contentUrl" content="{{ config.your_logo }}">
+          </span>
+        {% endif %}
+
+    {{ content }}
+
+            <div id="social">
+            <a class="facebook" href="https://www.facebook.com/sharer/sharer.php?u={{ current_page.url }}">f</a>
+            <a class="linkedin" href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{ current_page.url }}&amp;title={{ current_page.title }}&amp;source={{ site_title }}&amp;summary={{ current_page.description }}">in</a>
+            </div>
+
+    </article>
+
+    <div id="prev_next" itemscope itemtype="https://schema.org/BreadcrumbList">
+        {% if prev_page.meta.template == "post" %}
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                &larr;&nbsp;<a href="{{ prev_page.url }}" ><span itemprop="name">{{ prev_page.title }}</span></a>
+                <meta itemprop="position" content="1">
+                <meta itemprop="item" content="{{ prev_page.url }}">
+            </span>
+	    {% endif %}
+        
+        {% if next_page.meta.template == "post" %}
+            <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+	            <a href="{{ next_page.url }}"><span itemprop="name">{{ next_page.title }}</span></a>&nbsp;&rarr;
+                <meta itemprop="position" content="2">
+                <meta itemprop="item" content="{{ next_page.url }}">
+            </span>
+        {% endif %}
+    </div>
+    </main>
+
+    <footer id="step">
+    <div itemscope itemtype="https://schema.org/WebSite">
+        <link itemprop="url" content="{{ base_url }}">
+        <form id="search" role="search"  itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction" action="{{ "search"|link }}">
+            <meta itemprop="target" content="{{ base_url }}/?q={q}">
+            <input type="search" itemprop="query-input" id="search_input" name="q" value="{{ search_terms|e('html_attr') }}" />
+            <input type="submit" value="Search" />
+        </form>
+    </div>
+
+    &#64;&nbsp;<a href="mailto:{{ config.your_mail}}">{{ config.your_mail}}</a>
+    <p>{{ site_title }} © </p>
+    </footer> 
+</body>
+</html>

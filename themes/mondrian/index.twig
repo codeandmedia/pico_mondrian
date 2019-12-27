@@ -1,0 +1,220 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=4"> 
+  <link href="{{ theme_url }}/main.css" type="text/css" rel="stylesheet" media="screen" />
+
+    <title>{% if meta.title %}{{ meta.title|escape }} | {% endif %}{{ site_title }}</title>
+    {% if meta.description %}<meta name="description" content="{{ meta.description }}">{% endif %}
+    {% if meta["Tags"] %}<meta name="keywords" content="{{ meta["Tags"] | join(',') }}">{% endif %}
+ 
+  {% if search_terms %}
+    <script type="application/ld+json">
+      {
+      "@context": "http://schema.org",
+      "@type": "SearchResultsPage",
+      "mainEntity": [{
+        "@type": "ItemList",
+        "name": "{{ search_terms|e('html_attr') }}",
+        "itemListOrder": "http://schema.org/ItemListUnordered"
+        }]
+      }
+    </script>
+          
+  {% else %}
+    <script type="application/ld+json">
+      {
+     "@context": "https://schema.org",
+     "@type": "WebSite",
+     "headline": "{{ site_title }}",
+     "description": "{{ meta.description }}",
+     "url": "{{ base_url }}" 
+      }
+    </script>
+  {% endif %}
+
+</head>
+
+<body itemscope {% if search_terms %}itemtype="https://schema.org/SearchResultsPage"{% else %}itemtype="https://schema.org/CollectionPage"{% endif %}>
+
+  <header>
+    {% if is_front_page %}
+      <h1>{{ site_title }}</h1>	
+      <div>
+      <h2>{{ meta.description }}</h2>
+    {% else %}
+      <h1><a href="{{ base_url }}">{{ site_title }}	</a></h1>	
+    {% if search_terms %}
+      <div>
+      <h2>{{ search_terms|e('html') }}</h2>
+    {% else %}
+      <div>
+      <h2>{{ meta.title }}</h2>
+    {% endif %}
+    {% endif %}
+      </div>
+  </header>
+
+  {% if tag_pages %}
+  <section itemscope itemtype="https://schema.org/SiteNavigationElement">
+      <ul id="tags_list">
+          {% for tag in tag_list %}
+            <li><a href="{{ base_url }}/tag/{{ tag|e('url') }}" itemprop="url">#{{ tag|e }}</a></li>
+          {% endfor %}
+      </ul>
+      <select id="mobile" onChange="window.location.href=this.value" name="Категории" >
+        <option disabled selected>#</option>
+          {% for tag in tag_list %}
+            <option value="{{ base_url }}/tag/{{ tag|e('url') }}">#{{ tag|e }}</option> 
+          {% endfor %}
+      </select>
+  </section>
+  {% endif %}
+
+  <main itemscope itemtype="https://schema.org/Blog">
+
+    {% set excludedpages = 0 %}
+    {% set pagesbis = [] %}
+      {% for page in pages %}
+        {% if page.meta["template"] == "index"  %}
+        {% set excludedpages = excludedpages + 1 %}
+      {% else %}
+        {% set pagesbis = pagesbis|merge([page]) %}
+      {% endif %}
+    {% endfor %}
+
+    {% if search_terms %}
+      {% set pagi_base_url = base_url ~ "/search/" ~ search_terms %}
+      {% set pagi_pages_array = pagesbis %}
+    {% endif %}
+
+    {% if tag_pages %}
+      {% set pagi_base_url = base_url ~ "/tag/" ~ current_tag %}
+      {% set pagi_pages_array = tag_pages %}
+    {% endif %}
+
+    {% if is_front_page %}
+      {% set pagi_base_url = base_url %}
+      {% set pagi_pages_array = pagesbis %}
+    {% endif %}
+
+    {% set pagi_slice_length = 5 %}
+    {% set pagi_http_param = 'page' %}
+      
+    {% if url_param(pagi_http_param, 'int') is not null %}
+      {% set pagi_basepage = url_param(pagi_http_param, 'int') %}
+      {% set pagi_slice_start = pagi_slice_length * (pagi_basepage - 1) %}
+    {% else %}
+      {% set pagi_slice_start = 0 %}
+      {% set pagi_basepage = 1 %}
+    {% endif %}      
+
+    {% if current_page.meta["Level"] == "top" %}
+      {% for child in current_page.tree_node.children %}   
+        <a href="{{ child.page.url }}" class="card" id="id_{{ child.page.title| replace({'\x20':'', '\x2c':'', '\x3a':'', '\x3b':'', '\x3f':''}) }}" >
+          <article>
+            <span>{{ child.page.date_formatted }}</span> 
+            <h3>{{ child.page.title }}</h3>
+            <p>{{ child.page.description }}</p>
+          </article>
+        </a>
+        <style type="text/css">
+          #id_{{ child.page.title| replace({'\x20':'', '\x2c':'', '\x3a':'', '\x3b':'', '\x3f':''}) }}:hover {
+              background:{{ child.page.meta.cover }};
+              background-size: cover;
+              background-blend-mode: lighten;
+              }
+        </style>
+      {% endfor %}
+    {% else %}
+      {% set pagi_maxpage = (pagi_pages_array|length / pagi_slice_length)|round(0, 'ceil') %}  
+      {% for page in pagi_pages_array|slice(pagi_slice_start, pagi_slice_length, preserve_keys) %}
+        <a href="{{ page.url }}" class="card" id="id_{{ page.title|replace({'\x20':'', '\x2c':'', '\x3a':'', '\x3b':'', '\x3f':''})}}" itemprop="url">
+          <article itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+              <span datetime="{{ page.date|date("Y-m-d", "Europe/London") }}" itemprop="datePublished"> {{ page.date_formatted }}</span> 
+              <meta itemprop="dateModified" content=" {{ child.page.date|date("Y-m-d", "Europe/London") }} " />
+              <meta itemprop="mainEntityOfPage" content="{{ page.url }}" />
+            <h3 itemprop="headline">{{ page.title }}</h3>
+            <p itemprop="description">{{ page.description }}</p>
+            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+              <meta itemprop="name" content="{{ config.your_name }}" />
+            </span>    
+
+            <span itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+                <meta itemprop="name" content="{{ site_title }}">
+                <span itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+                <meta itemprop="url contentUrl" content="{{ config.your_logo }}">
+                </span>
+            </span>
+
+        {% if page.meta.image %}
+          <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject">
+              <meta itemprop="url contentUrl" content="{{ base_url }}/assets/{{ meta.image }}">
+          </span>
+          {% else %}
+          <span itemprop="image" itemscope itemtype="http://schema.org/ImageObject">
+              <meta itemprop="url contentUrl" content="{{ config.your_logo }}">
+          </span>
+        {% endif %}
+        </article>
+        </a>
+
+        <style type="text/css">
+          #id_{{ page.title|replace({'\x20':'', '\x2c':'', '\x3a':'', '\x3b':'', '\x3f':''}) }}:hover {
+              background:{{ page.meta.cover }};
+              background-size: cover;
+              background-blend-mode: lighten;
+            }
+        </style>
+      {% endfor %}
+    {% endif %}
+    </main>
+
+
+  {% set pagi_next_page = pagi_basepage + 1 %}
+  {% set pagi_prev_page = pagi_basepage - 1 %}
+  {% if pagi_max_near_by is null %}
+    {% set pagi_max_near_by = 2 %}
+  {% endif %}
+
+  {% if pagi_maxpage > 1 %}
+    <div id="pagination">
+      <ul>
+        {% if pagi_prev_page is not null %}
+          <li {% if pagi_prev_page < 1 %}style="visibility: hidden;"{% endif %}><a href="{% if pagi_prev_page == 1 %}{{ pagi_base_url }}{% else %}{{ pagi_base_url ~ '/?' ~ pagi_http_param ~ '=' ~  pagi_prev_page }}{% endif %}" title="Предыдущая страница">&larr;</a></li>
+        {% endif %}
+        {% if pagi_basepage - pagi_max_near_by > 1 %}
+          <li><a href="{{ pagi_base_url }}">1</a></li>
+          <li>&nldr;</li>
+        {% endif %}
+        {% for item in range(1, pagi_maxpage|number_format) %}
+          <li {% if pagi_basepage - pagi_max_near_by > item or pagi_basepage + pagi_max_near_by < item  %}style="display:none;"{% endif %}  {%if item == pagi_basepage %}  id="pi_a"{%endif %}><a href="{% if item == 1 %}{{ pagi_base_url }}{% else %}{{ pagi_base_url ~ '/?' ~ pagi_http_param ~ '=' ~ item }}{% endif %}">{%if item == pagi_basepage %}<span>{{ item }}</span>{% else %}{{ item }}{%endif %}</a></li>
+        {% endfor %}
+        {% if pagi_basepage + pagi_max_near_by < pagi_maxpage %}
+          <li>&nldr;</li>
+        {% endif %}
+        {% if pagi_next_page is not null %}
+          <li {% if pagi_next_page > pagi_maxpage %}style="visibility: hidden;"{% endif %}><a href="{{ pagi_base_url ~ '/?' ~ pagi_http_param ~ '=' ~ pagi_next_page }}" title="Следующая страница">&rarr;</a></li>
+        {% endif %}
+      </ul>
+    </div> 
+  {% endif %}
+ 
+  <footer>
+
+    <div itemscope itemtype="https://schema.org/WebSite">
+      <link itemprop="url" content="{{ base_url }}">
+      <form id="search" role="search"  itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction" action="{{ "search"|link }}">
+          <meta itemprop="target" content="{{ base_url }}/?q={q}">
+          <input type="search" itemprop="query-input" id="search_input" name="q" value="{{ search_terms|e('html_attr') }}" />
+          <input type="submit" value="Search" />
+      </form>
+    </div>
+
+    &#64;&nbsp;<a href="mailto:{{ config.your_mail}}">{{ config.your_mail}}</a>
+    <p>{{ site_title }} © </p>
+
+  </footer> 
+</body>
+</html>

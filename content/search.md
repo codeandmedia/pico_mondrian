@@ -1,0 +1,4 @@
+---
+Title: Search
+Template: index
+---
